@@ -1,0 +1,40 @@
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+# [START mail_service]
+inbound_services:
+- mail
+# [END mail_service]
+
+env_variables:
+  GAE_USE_SOCKETS_HTTPLIB : 'true'
+
+libraries: 
+- name: ssl
+  version: 2.7.11 
+ 
+handlers:
+# [START handle_incoming_email]
+- url: /_ah/mail/.+
+  script: handle_incoming_email.app
+  login: admin
+# [END handle_incoming_email]
+# [START handle_all_email]
+- url: /_ah/mail/owner@.*your_app_id\.appspotmail\.com
+  script: handle_owner.app
+  login: admin
+- url: /_ah/mail/support@.*your_app_id\.appspotmail\.com
+  script: handle_support.app
+  login: admin
+- url: /_ah/mail/.+
+  script: handle_catchall.app
+  login: admin
+# [END handle_all_email]
+- url: /attachment
+  script: attachment.app
+- url: /header
+  script: header.app
+- url: /
+  static_files: index.html
+  upload: index.html
